@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use super::file_pool;
 
 pub struct LatinAndUnicodeString {
@@ -10,5 +12,5 @@ pub struct Beatmap {
     pub artist: LatinAndUnicodeString,
     pub version: String,
     pub creator: String,
-    pub background: Option<file_pool::File>,
+    pub background: Option<Rc<file_pool::File>>,
 }
