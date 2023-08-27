@@ -5,6 +5,7 @@ use std::{
     rc::Rc,
 };
 
+// Note: Eq 表示告诉编译器等号具有自反性。只需编写 PartialEq 的代码即可，Eq 总是一个标记。
 #[derive(Debug, Eq)]
 pub struct File {
     pub original_path: PathBuf,
@@ -37,6 +38,8 @@ impl FilePool {
     }
 
     fn insert(&mut self, file_with_path: File) -> u32 {
+        // Note: *Map 的 get 方法返回的是引用的 Option，用 Option 的 copied 方法将引用去掉。
+        // Note: *Map 的 get 方法传入的是引用。类比 const auto&。
         let option_id = self.file_to_id.get(&file_with_path).copied();
         match option_id {
             Some(id) => {
@@ -60,6 +63,7 @@ impl FilePool {
         self.path_to_id.get(path).copied()
     }
     fn get_file_from_id(&self, id: u32) -> Option<Rc<File>> {
+        // Note: 使用 Option 的 cloned 方法将引用去掉。
         self.id_to_file.get(&id).cloned()
     }
     fn clear_path(&mut self) {
