@@ -73,8 +73,10 @@ impl FilePool {
 
 #[cfg(test)]
 mod test {
+    // Note: 测试模块常用 use super::* 引入要测试的所有内容。
     use super::*;
 
+    // Note: 注意编译时常量的规则，基本上与 C++ 是完全一样的，但写起来比 C++ 简单多了。
     const TEST_FILE_PATH_1: &str = "test_file_1.mp3";
     const TEST_FILE_BYTES_1: &[u8] = &[1, 1, 4];
     const TEST_FILE_PATH_2: &str = "test_file_2.mp3";
