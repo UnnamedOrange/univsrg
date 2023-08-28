@@ -22,6 +22,7 @@ impl PartialEq for File {
     }
 }
 
+#[derive(Debug)]
 pub struct FilePool {
     file_to_id: HashMap<Rc<File>, u32>,
     id_to_file: HashMap<u32, Rc<File>>,

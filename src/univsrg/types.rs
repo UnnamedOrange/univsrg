@@ -4,11 +4,13 @@ use std::rc::Rc;
 // Note: mod.rs 已经将所有模块引入，所以不需再引入，只需用 use 语句缩写。
 use super::file_pool;
 
+#[derive(Debug)]
 pub struct LatinAndUnicodeString {
     latin: Option<String>,
     unicode: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct Beatmap {
     pub title: LatinAndUnicodeString,
     pub artist: LatinAndUnicodeString,
