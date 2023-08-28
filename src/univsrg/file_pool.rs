@@ -70,3 +70,81 @@ impl FilePool {
         self.path_to_id.clear();
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const TEST_FILE_PATH_1: &str = "test_file_1.mp3";
+    const TEST_FILE_BYTES_1: &[u8] = &[1, 1, 4];
+    const TEST_FILE_PATH_2: &str = "test_file_2.mp3";
+    const TEST_FILE_BYTES_2: &[u8] = &[5, 1, 4];
+    const TEST_FILE_BYTES_3: &[u8] = &[1, 1, 4, 5, 1, 4];
+
+    fn new_example_file_pool() -> FilePool {
+        let mut file_pool = super::FilePool::new();
+        let test_file_1 = super::File {
+            original_path: std::path::PathBuf::from(TEST_FILE_PATH_1),
+            bytes: TEST_FILE_BYTES_1.to_vec(),
+        };
+        let test_file_2 = super::File {
+            original_path: std::path::PathBuf::from(TEST_FILE_PATH_2),
+            bytes: TEST_FILE_BYTES_2.to_vec(),
+        };
+        file_pool.insert(test_file_1);
+        file_pool.insert(test_file_2);
+        file_pool
+    }
+
+    #[test]
+    fn file_pool_get_id_from_path() {
+        let file_pool = new_example_file_pool();
+        let id_1 = file_pool
+            .get_id_from_path(Path::new(TEST_FILE_PATH_1))
+            .unwrap();
+        let id_2 = file_pool
+            .get_id_from_path(Path::new(TEST_FILE_PATH_2))
+            .unwrap();
+        assert!(id_1 != id_2);
+    }
+
+    #[test]
+    fn file_pool_get_file_from_id() {
+        let file_pool = new_example_file_pool();
+        let id_1 = file_pool
+            .get_id_from_path(Path::new(TEST_FILE_PATH_1))
+            .unwrap();
+        let id_2 = file_pool
+            .get_id_from_path(Path::new(TEST_FILE_PATH_2))
+            .unwrap();
+        let file_1 = file_pool.get_file_from_id(id_1).unwrap();
+        let file_2 = file_pool.get_file_from_id(id_2).unwrap();
+        assert_eq!(file_1.bytes, TEST_FILE_BYTES_1);
+        assert_eq!(file_2.bytes, TEST_FILE_BYTES_2);
+    }
+
+    #[test]
+    fn file_pool_duplicated_path() {
+        let mut file_pool = new_example_file_pool();
+        let id_1 = file_pool
+            .get_id_from_path(Path::new(TEST_FILE_PATH_1))
+            .unwrap();
+        let test_file_3 = super::File {
+            original_path: std::path::PathBuf::from(TEST_FILE_PATH_1),
+            bytes: TEST_FILE_BYTES_3.to_vec(),
+        };
+        // Duplicated file path covers the original one.
+        file_pool.clear_path();
+        let id_3 = file_pool.insert(test_file_3);
+        let new_id_1 = file_pool
+            .get_id_from_path(Path::new(TEST_FILE_PATH_1))
+            .unwrap();
+        assert_ne!(id_1, new_id_1);
+        assert_eq!(id_3, new_id_1);
+        // Still, we can find the original file by ID.
+        let file_1 = file_pool.get_file_from_id(id_1).unwrap();
+        let file_3 = file_pool.get_file_from_id(id_3).unwrap();
+        assert_eq!(file_1.bytes, TEST_FILE_BYTES_1);
+        assert_eq!(file_3.bytes, TEST_FILE_BYTES_3);
+    }
+}
