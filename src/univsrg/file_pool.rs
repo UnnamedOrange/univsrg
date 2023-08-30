@@ -30,7 +30,7 @@ pub struct FilePool {
 }
 
 impl FilePool {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             file_to_id: HashMap::new(),
             id_to_file: HashMap::new(),
@@ -38,7 +38,7 @@ impl FilePool {
         }
     }
 
-    fn insert(&mut self, file_with_path: File) -> u32 {
+    pub fn insert(&mut self, file_with_path: File) -> u32 {
         // Note: *Map 的 get 方法返回的是引用的 Option，用 Option 的 copied 方法将引用去掉。
         // Note: *Map 的 get 方法传入的是引用。类比 const auto&。
         let option_id = self.file_to_id.get(&file_with_path).copied();
@@ -60,14 +60,14 @@ impl FilePool {
             }
         }
     }
-    fn get_id_from_path(&self, path: &Path) -> Option<u32> {
+    pub fn get_id_from_path(&self, path: &Path) -> Option<u32> {
         self.path_to_id.get(path).copied()
     }
-    fn get_file_from_id(&self, id: u32) -> Option<Rc<File>> {
+    pub fn get_file_from_id(&self, id: u32) -> Option<Rc<File>> {
         // Note: 使用 Option 的 cloned 方法将引用去掉。
         self.id_to_file.get(&id).cloned()
     }
-    fn clear_path(&mut self) {
+    pub fn clear_path(&mut self) {
         self.path_to_id.clear();
     }
 }
