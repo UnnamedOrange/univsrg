@@ -1,4 +1,4 @@
-pub mod file_pool;
+pub mod resource;
 pub mod traits;
 pub mod types;
 

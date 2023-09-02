@@ -1,8 +1,6 @@
-use std::rc::Rc;
-
 // Note: 使用 super 表示上一级模块，即 univsrg。
 // Note: mod.rs 已经将所有模块引入，所以不需再引入，只需用 use 语句缩写。
-use super::file_pool::{self, FilePool};
+use super::resource::{ResourceEntry, ResourcePool};
 
 #[derive(Debug)]
 pub struct LatinAndUnicodeString {
@@ -35,8 +33,8 @@ pub struct Beatmap {
     pub version: Option<String>,
     pub creator: Option<String>,
     pub column_count: u32,
-    pub audio: Rc<file_pool::File>,
-    pub background: Option<Rc<file_pool::File>>,
+    pub audio: ResourceEntry,
+    pub background: Option<ResourceEntry>,
     pub hp_difficulty: Option<f32>,
     pub acc_difficulty: Option<f32>,
 
@@ -47,14 +45,14 @@ pub struct Beatmap {
 
 pub struct Package {
     pub beatmaps: Vec<Beatmap>,
-    pub file_pool: FilePool,
+    pub resource_pool: ResourcePool,
 }
 
 impl Package {
     pub fn new() -> Self {
         Package {
             beatmaps: Vec::new(),
-            file_pool: FilePool::new(),
+            resource_pool: ResourcePool::new(),
         }
     }
 }
