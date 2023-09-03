@@ -1,5 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
+    io,
     ops::Deref,
     path::{Path, PathBuf},
     rc::Rc,
@@ -37,7 +38,9 @@ pub struct ResourcePool {
     path_to_entry: HashMap<PathBuf, ResourceEntry>,
 }
 
-pub struct ResourceOut {}
+pub struct ResourceOut {
+    entry_to_path: HashMap<ResourceEntry, PathBuf>,
+}
 
 impl ResourcePool {
     pub fn new() -> Self {
@@ -60,6 +63,28 @@ impl ResourcePool {
     }
     pub fn clear_path(&mut self) {
         self.path_to_entry.clear();
+    }
+}
+
+impl ResourceOut {
+    pub fn new() -> Self {
+        Self {
+            entry_to_path: HashMap::new(),
+        }
+    }
+
+    pub fn inflate(&mut self, dir: PathBuf, pool: &ResourcePool) -> io::Result<()> {
+        if dir.read_dir()?.next().is_some() {
+            // Note: io::Result 的意思是 Result 配 io::Error。
+            return Err(io::Error::new(
+                io::ErrorKind::AlreadyExists,
+                format!("dir ({}) should be an empty folder.", dir.to_str().unwrap()),
+            ));
+        }
+        for entry in &pool.entries {
+            // TODO: inflate the directory with files.
+        }
+        Ok(())
     }
 }
 
