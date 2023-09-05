@@ -1,6 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
-    io,
+    fs::File,
+    io::{self, Write},
     ops::Deref,
     path::{Path, PathBuf},
     rc::Rc,
@@ -82,7 +83,35 @@ impl ResourceOut {
             ));
         }
         for entry in &pool.entries {
-            // TODO: inflate the directory with files.
+            // Get `inflated_path`.
+            let original_path = &entry.original_path;
+            let mut inflated_path: PathBuf = [&dir, original_path].iter().collect();
+            let mut basename = inflated_path
+                .file_stem()
+                .unwrap() // Assume the basename is always valid.
+                .to_str()
+                .unwrap() // Assume there is no obscure character.
+                .to_string();
+            while inflated_path.exists() {
+                inflated_path = inflated_path.parent().unwrap().to_owned();
+                basename += "c";
+                inflated_path.push(PathBuf::from(&basename));
+                inflated_path.set_extension(original_path.extension().unwrap_or_default());
+            }
+
+            // Save the path.
+            self.entry_to_path
+                .insert(entry.clone(), inflated_path.clone());
+
+            // Inflate the path.
+
+            // Note: 文件写操作。
+            let mut output = File::create(inflated_path).unwrap(); // Assume the creation is always valid.
+
+            // Note: write 和 write_all 的区别。
+            output.write_all(&entry.bytes).unwrap(); // Assume always written successfully.
+
+            // Note: File 实现了 Drop 特征。
         }
         Ok(())
     }
