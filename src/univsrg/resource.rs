@@ -176,4 +176,18 @@ mod test {
             .get_entry_from_path(Path::new(TEST_FILE_PATH_1))
             .is_none());
     }
+
+    #[test]
+    fn resource_out_inflate() {
+        let resource_pool = new_example_resource_pool();
+        let root = tempfile::tempdir().unwrap();
+        let pathbuf = root.path().to_owned();
+        let mut resource_out = ResourceOut::new();
+        resource_out.inflate(pathbuf, &resource_pool).unwrap();
+
+        let path: PathBuf = [root.path(), Path::new(TEST_FILE_PATH_1)].iter().collect();
+        assert!(path.exists());
+        let path: PathBuf = [root.path(), Path::new(TEST_FILE_PATH_2)].iter().collect();
+        assert!(path.exists());
+    }
 }
