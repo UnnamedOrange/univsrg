@@ -8,6 +8,18 @@ pub struct LatinAndUnicodeString {
     unicode: Option<String>,
 }
 
+impl LatinAndUnicodeString {
+    pub fn latin_or_unicode(&self) -> Option<&String> {
+        // Note: 使用 Option 的 as_ref 方法将 &Option<T> 转换为 Option<&T>。
+        // Note: &self 的 self.latin 就已经是引用了。
+        self.latin.as_ref().or(self.unicode.as_ref())
+    }
+
+    pub fn unicode_or_latin(&self) -> Option<&String> {
+        self.unicode.as_ref().or(self.latin.as_ref())
+    }
+}
+
 #[derive(Debug)]
 pub struct BpmTimePoint {
     pub offset: u32,
