@@ -60,6 +60,23 @@ pub struct Package {
     pub resource_pool: ResourcePool,
 }
 
+impl Beatmap {
+    pub fn make_basename(&self) -> String {
+        let mut names = Vec::<&str>::new();
+        self.creator.as_ref().map(|it| {
+            names.push(it);
+        });
+        self.title.unicode_or_latin().map(|it| {
+            names.push(it);
+        });
+        self.version.as_ref().map(|it| {
+            names.push(it);
+        });
+        // Note: 不能对 Vec::<&String> 进行 join。因为 &String 没有提供 iter 方法。
+        names.join(" - ")
+    }
+}
+
 impl Package {
     pub fn new() -> Self {
         Package {
