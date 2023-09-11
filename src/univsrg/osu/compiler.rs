@@ -1,9 +1,13 @@
 use std::{
     fs::File,
-    io,
+    io::{self, Write},
     path::{Path, PathBuf},
 };
 
+use osu_file_parser::{
+    metadata::{Metadata, Title},
+    OsuFile,
+};
 use tempfile::{tempdir, TempDir};
 
 use super::super::{resource::ResourceOut, traits::ToOsu, types::Beatmap, types::Package};
@@ -12,8 +16,11 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     let basename = PathBuf::from(beatmap.make_basename());
     let filename: PathBuf = [root, &basename].iter().collect();
 
-    let mut output = File::create(filename)?;
+    let mut osu_file = OsuFile::new(14);
+    let mut metadata = Metadata::new();
     // TODO: Generate the file.
+
+    File::create(filename)?.write_all(osu_file.to_string().as_bytes())?;
 
     Ok(())
 }
