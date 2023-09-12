@@ -4,8 +4,8 @@ use super::resource::{ResourceEntry, ResourcePool};
 
 #[derive(Debug)]
 pub struct LatinAndUnicodeString {
-    latin: Option<String>,
-    unicode: Option<String>,
+    pub latin: Option<String>,
+    pub unicode: Option<String>,
 }
 
 impl LatinAndUnicodeString {

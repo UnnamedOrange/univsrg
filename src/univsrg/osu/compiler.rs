@@ -5,7 +5,7 @@ use std::{
 };
 
 use osu_file_parser::{
-    metadata::{Metadata, Title},
+    metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
     OsuFile,
 };
 use tempfile::{tempdir, TempDir};
@@ -18,6 +18,38 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
 
     let mut osu_file = OsuFile::new(14);
     let mut metadata = Metadata::new();
+    metadata.title = beatmap //
+        .title
+        .latin
+        .as_ref()
+        .map(|v| Title::from(v.clone()));
+    metadata.title_unicode = beatmap //
+        .title
+        .unicode
+        .as_ref()
+        .map(|v| TitleUnicode::from(v.clone()));
+    metadata.artist = beatmap //
+        .artist
+        .latin
+        .as_ref()
+        .map(|v| Artist::from(v.clone()));
+    metadata.artist_unicode = beatmap //
+        .artist
+        .unicode
+        .as_ref()
+        .map(|v| ArtistUnicode::from(v.clone()));
+    metadata.creator = beatmap //
+        .creator
+        .as_ref()
+        .map(|v| Creator::from(v.clone()));
+    metadata.version = beatmap //
+        .version
+        .as_ref()
+        .map(|v| Version::from(v.clone()));
+    // source, tags, beatmap_id, beatmap_set_id
+    // are not supported.
+    osu_file.metadata = Some(metadata);
+
     // TODO: Generate the file.
 
     File::create(filename)?.write_all(osu_file.to_string().as_bytes())?;
