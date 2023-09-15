@@ -5,8 +5,9 @@ use std::{
 };
 
 use osu_file_parser::{
+    difficulty::{Difficulty, HPDrainRate, OverallDifficulty},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
-    OsuFile,
+    Decimal, OsuFile,
 };
 use tempfile::{tempdir, TempDir};
 
@@ -49,6 +50,17 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     // source, tags, beatmap_id, beatmap_set_id
     // are not supported.
     osu_file.metadata = Some(metadata);
+
+    let mut difficulty = Difficulty::new();
+    difficulty.hp_drain_rate = beatmap
+        .hp_difficulty
+        .as_ref()
+        .map(|v| HPDrainRate::from(Decimal::new_from_str(&format!("{:.1}", v))));
+    difficulty.overall_difficulty = beatmap
+        .acc_difficulty
+        .as_ref()
+        .map(|v| OverallDifficulty::from(Decimal::new_from_str(&format!("{:.1}", v))));
+    osu_file.difficulty = Some(difficulty);
 
     // TODO: Generate the file.
 
