@@ -6,6 +6,7 @@ use std::{
 
 use osu_file_parser::{
     difficulty::{Difficulty, HPDrainRate, OverallDifficulty},
+    general::{AudioFilename, General, Mode},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
     Decimal, OsuFile,
 };
@@ -61,6 +62,14 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         .as_ref()
         .map(|v| OverallDifficulty::from(Decimal::new_from_str(&format!("{:.1}", v))));
     osu_file.difficulty = Some(difficulty);
+
+    let mut general = General::new();
+    general.mode = Some(Mode::Mania);
+    general.audio_filename = resource
+        .get_path_from_entry(&beatmap.audio)
+        .map(|v| AudioFilename::from(v.clone()));
+    // audio_lead_in, audio_hash, preview_time
+    // are not supported.
 
     // TODO: Generate the file.
 

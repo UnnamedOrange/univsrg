@@ -115,6 +115,10 @@ impl ResourceOut {
         }
         Ok(())
     }
+
+    pub fn get_path_from_entry(&self, entry: &ResourceEntry) -> Option<&PathBuf> {
+        self.entry_to_path.get(entry)
+    }
 }
 
 #[cfg(test)]
