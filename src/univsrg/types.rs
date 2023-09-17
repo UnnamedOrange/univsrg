@@ -46,6 +46,8 @@ pub struct Beatmap {
     pub creator: Option<String>,
     pub column_count: u32,
     pub audio: ResourceEntry,
+    pub audio_lead_in: Option<u32>,
+    pub preview_time: Option<u32>,
     pub background: Option<ResourceEntry>,
     pub hp_difficulty: Option<f32>,
     pub acc_difficulty: Option<f32>,

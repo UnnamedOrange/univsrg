@@ -6,9 +6,9 @@ use std::{
 
 use osu_file_parser::{
     difficulty::{Difficulty, HPDrainRate, OverallDifficulty},
-    general::{AudioFilename, General, Mode},
+    general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
-    Decimal, OsuFile,
+    Decimal, Integer, OsuFile,
 };
 use tempfile::{tempdir, TempDir};
 
@@ -68,8 +68,15 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     general.audio_filename = resource
         .get_path_from_entry(&beatmap.audio)
         .map(|v| AudioFilename::from(v.clone()));
-    // audio_lead_in, audio_hash, preview_time
+    general.audio_lead_in = beatmap
+        .audio_lead_in
+        .map(|v| AudioLeadIn::from(v as Integer));
+    general.preview_time = beatmap
+        .preview_time
+        .map(|v| PreviewTime::from(v as Integer));
+    // audio_hash
     // are not supported.
+    osu_file.general = Some(general);
 
     // TODO: Generate the file.
 
