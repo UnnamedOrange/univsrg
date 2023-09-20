@@ -755,6 +755,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "osu-file-parser",
+ "rust_decimal",
  "tempfile",
 ]
 
