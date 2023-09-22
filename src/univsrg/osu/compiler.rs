@@ -8,7 +8,9 @@ use osu_file_parser::{
     difficulty::{Difficulty, HPDrainRate, OverallDifficulty},
     general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
-    Decimal, Integer, OsuFile,
+    timingpoints::TimingPoint,
+    timingpoints::{Effects, SampleIndex, SampleSet, Volume},
+    Decimal, Integer, OsuFile, TimingPoints,
 };
 use tempfile::{tempdir, TempDir};
 
@@ -77,6 +79,41 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     // audio_hash
     // are not supported.
     osu_file.general = Some(general);
+
+    let mut timing_points = Vec::<TimingPoint>::new();
+    let mut idx_red = 0;
+    let mut idx_green = 0;
+    while idx_red < beatmap.bpm_time_points.len() && idx_green < beatmap.effect_time_points.len() {
+        if beatmap.effect_time_points[idx_green].offset < beatmap.bpm_time_points[idx_red].offset {
+            let etp = &beatmap.effect_time_points[idx_green];
+            let tp = TimingPoint::new_inherited(
+                etp.offset as i32, // u32 bug?
+                rust_decimal::Decimal::try_from(etp.velocity_multiplier).unwrap(),
+                0,
+                SampleSet::BeatmapDefault,
+                SampleIndex::OsuDefaultHitsounds,
+                Volume::new(100, 14).unwrap(),
+                Effects::new(false, false),
+            );
+            timing_points.push(tp);
+            idx_green += 1;
+        } else {
+            let btp = &beatmap.bpm_time_points[idx_red];
+            let beat_duration_ms = 60000f32 / btp.bpm;
+            let tp = TimingPoint::new_uninherited(
+                btp.offset as i32,
+                Decimal::new_from_str(&format!("{:.3}", beat_duration_ms)),
+                0,
+                SampleSet::BeatmapDefault,
+                SampleIndex::OsuDefaultHitsounds,
+                Volume::new(100, 14).unwrap(),
+                Effects::new(false, false),
+            );
+            timing_points.push(tp);
+            idx_red += 1;
+        }
+    }
+    osu_file.timing_points = Some(TimingPoints(timing_points));
 
     // TODO: Generate the file.
 
