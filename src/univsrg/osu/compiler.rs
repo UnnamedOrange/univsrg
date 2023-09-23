@@ -7,14 +7,22 @@ use std::{
 use osu_file_parser::{
     difficulty::{Difficulty, HPDrainRate, OverallDifficulty},
     general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
+    hitobjects::{HitObject, HitObjectParams::OsuManiaHold},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
-    timingpoints::TimingPoint,
-    timingpoints::{Effects, SampleIndex, SampleSet, Volume},
-    Decimal, Integer, OsuFile, TimingPoints,
+    timingpoints::{Effects, SampleIndex, SampleSet, TimingPoint, Volume},
+    Decimal, HitObjects, Integer, OsuFile, TimingPoints,
 };
 use tempfile::{tempdir, TempDir};
 
-use super::super::{resource::ResourceOut, traits::ToOsu, types::Beatmap, types::Package};
+use super::super::{
+    resource::ResourceOut,
+    traits::ToOsu,
+    types::{
+        Beatmap,
+        Object::{LongNote, Note},
+        Package,
+    },
+};
 
 fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io::Result<()> {
     let basename = PathBuf::from(beatmap.make_basename());
@@ -114,6 +122,28 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         }
     }
     osu_file.timing_points = Some(TimingPoints(timing_points));
+
+    let mut hit_objects = Vec::<HitObject>::new();
+    for object in &beatmap.objects {
+        let mut ho;
+        match object {
+            // Note: 要将 enum 的类型单独匹配为一个对象，只能写成 new type。
+            Note { offset } => {
+                ho = HitObject::hitcircle_default();
+                ho.time = Decimal::from(*offset as i32);
+            }
+            LongNote { offset, end_offset } => {
+                ho = HitObject::osu_mania_hold_default();
+                ho.time = Decimal::from(*offset as i32);
+                ho.obj_params = OsuManiaHold {
+                    end_time: Decimal::from(*end_offset),
+                }
+            }
+        }
+        // TODO: Fill the other fields (position).
+        hit_objects.push(ho);
+    }
+    osu_file.hitobjects = Some(HitObjects(hit_objects));
 
     // TODO: Generate the file.
 
