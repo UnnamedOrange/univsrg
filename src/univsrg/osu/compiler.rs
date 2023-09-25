@@ -5,7 +5,7 @@ use std::{
 };
 
 use osu_file_parser::{
-    difficulty::{Difficulty, HPDrainRate, OverallDifficulty},
+    difficulty::{CircleSize, Difficulty, HPDrainRate, OverallDifficulty},
     general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
     hitobjects::{HitObject, HitObjectParams::OsuManiaHold},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
@@ -63,6 +63,8 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     osu_file.metadata = Some(metadata);
 
     let mut difficulty = Difficulty::new();
+    // Column count is circle size.
+    difficulty.circle_size = Some(CircleSize::from(Decimal::from(beatmap.column_count as i32)));
     difficulty.hp_drain_rate = beatmap
         .hp_difficulty
         .as_ref()
