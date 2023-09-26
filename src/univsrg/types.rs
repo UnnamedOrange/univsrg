@@ -35,8 +35,15 @@ pub struct EffectTimePoint {
 
 #[derive(Debug)]
 pub enum Object {
-    Note { offset: u32 },
-    LongNote { offset: u32, end_offset: i32 },
+    Note {
+        column: u32,
+        offset: u32,
+    },
+    LongNote {
+        column: u32,
+        offset: u32,
+        end_offset: i32,
+    },
 }
 
 pub struct Beatmap {
