@@ -6,11 +6,12 @@ use std::{
 
 use osu_file_parser::{
     difficulty::{CircleSize, Difficulty, HPDrainRate, OverallDifficulty},
+    events::{Background, Event},
     general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
     hitobjects::{HitObject, HitObjectParams::OsuManiaHold},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
     timingpoints::{Effects, SampleIndex, SampleSet, TimingPoint, Volume},
-    Decimal, HitObjects, Integer, OsuFile, TimingPoints,
+    Decimal, Events, FilePath, HitObjects, Integer, OsuFile, TimingPoints,
 };
 use tempfile::{tempdir, TempDir};
 
@@ -29,6 +30,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     let filename: PathBuf = [root, &basename].iter().collect();
 
     let mut osu_file = OsuFile::new(14);
+
     let mut metadata = Metadata::new();
     metadata.title = beatmap //
         .title
@@ -160,6 +162,24 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         hit_objects.push(ho);
     }
     osu_file.hitobjects = Some(HitObjects(hit_objects));
+
+    let mut events = Vec::<Event>::new();
+    beatmap
+        .background
+        .as_ref()
+        .and_then(|b| resource.get_path_from_entry(b))
+        .and_then(|v| {
+            Some(Background {
+                start_time: 0,
+                file_name: FilePath::from(v),
+                position: None,
+                commands: vec![],
+            })
+        })
+        .map(|v| {
+            events.push(Event::Background(v));
+        });
+    osu_file.events = Some(Events(events));
 
     // TODO: Generate the file.
 
