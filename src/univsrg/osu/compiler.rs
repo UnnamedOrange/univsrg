@@ -11,7 +11,7 @@ use osu_file_parser::{
     hitobjects::{HitObject, HitObjectParams::OsuManiaHold},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
     timingpoints::{Effects, SampleIndex, SampleSet, TimingPoint, Volume},
-    Decimal, Events, FilePath, HitObjects, Integer, OsuFile, TimingPoints,
+    Decimal, Events, FilePath, HitObjects, OsuFile, TimingPoints,
 };
 use tempfile::{tempdir, TempDir};
 
@@ -82,12 +82,8 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     general.audio_filename = resource
         .get_path_from_entry(&beatmap.audio)
         .map(|v| AudioFilename::from(v.clone()));
-    general.audio_lead_in = beatmap
-        .audio_lead_in
-        .map(|v| AudioLeadIn::from(v as Integer));
-    general.preview_time = beatmap
-        .preview_time
-        .map(|v| PreviewTime::from(v as Integer));
+    general.audio_lead_in = beatmap.audio_lead_in.map(|v| AudioLeadIn::from(v as i32));
+    general.preview_time = beatmap.preview_time.map(|v| PreviewTime::from(v as i32));
     // audio_hash
     // are not supported.
     osu_file.general = Some(general);
