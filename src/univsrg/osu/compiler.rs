@@ -126,7 +126,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     let mut hit_objects = Vec::<HitObject>::new();
     for object in &beatmap.objects {
         // https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29#holds-(osu!mania-only)
-        fn position_to_column(x: u32, column_count: u32) -> u32 {
+        fn _position_to_column(x: u32, column_count: u32) -> u32 {
             x * column_count / 512
         }
         fn column_to_position(column: u32, column_count: u32) -> u32 {
