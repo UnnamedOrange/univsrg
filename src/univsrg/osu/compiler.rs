@@ -101,7 +101,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
             let tp = TimingPoint::new_inherited(
                 etp.offset as i32, // u32 bug?
                 rust_decimal::Decimal::try_from(etp.velocity_multiplier).unwrap(),
-                0,
+                0, // Ignored by inherited timing points.
                 SampleSet::BeatmapDefault,
                 SampleIndex::OsuDefaultHitsounds,
                 Volume::new(100, 14).unwrap(),
@@ -115,7 +115,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
             let tp = TimingPoint::new_uninherited(
                 btp.offset as i32,
                 Decimal::new_from_str(&format!("{:.3}", beat_duration_ms)),
-                0,
+                btp.beats_per_bar as i32,
                 SampleSet::BeatmapDefault,
                 SampleIndex::OsuDefaultHitsounds,
                 Volume::new(100, 14).unwrap(),
