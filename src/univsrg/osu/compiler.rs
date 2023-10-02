@@ -177,8 +177,6 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         });
     osu_file.events = Some(Events(events));
 
-    // TODO: Generate the file.
-
     File::create(filename)?.write_all(osu_file.to_string().as_bytes())?;
 
     Ok(())
@@ -192,9 +190,12 @@ impl ToOsu for Package {
         let mut resource_out = ResourceOut::new();
         resource_out.inflate(temp_dir.path().to_owned(), &self.resource_pool)?;
 
+        // Compile beatmaps.
         for beatmap in &self.beatmaps {
-            // TODO: Handle error.
-            compile_beatmap(beatmap, temp_dir.path(), &resource_out)?;
+            let result = compile_beatmap(beatmap, temp_dir.path(), &resource_out);
+            if result.is_err() {
+                continue;
+            }
         }
 
         // TODO: Package all files to a bundle.
