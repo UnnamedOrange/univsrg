@@ -11,3 +11,5 @@ clap = { version = "4.4.1", features = ["derive"] }
 osu-file-parser = "1.1.0"
 rust_decimal = "1.32.0"
 tempfile = "3.8.0"
+walkdir = "2.4.0"
+zip = "0.6.6"
