@@ -16,8 +16,9 @@ Define an intermediate layer for various VSRG formats to convert in between.
 
 ## Roadmap
 
-- [ ] To osz.
+- [x] To osz.
 - [ ] From osz.
-- [ ] To msz.
-- [ ] From msz.
+- [ ] Test osz.
+- [ ] To mc.
+- [ ] From mc.
 - [ ] First release.
