@@ -1,5 +1,6 @@
 use std::{
     fs::File,
+    io::ErrorKind,
     io::{self, Write},
     path::{Path, PathBuf},
 };
@@ -14,6 +15,8 @@ use osu_file_parser::{
     Decimal, Events, FilePath, HitObjects, OsuFile, TimingPoints,
 };
 use tempfile::{tempdir, TempDir};
+use walkdir::WalkDir;
+use zip::{CompressionMethod, ZipWriter};
 
 use super::super::{
     resource::ResourceOut,
@@ -182,6 +185,35 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     Ok(())
 }
 
+fn zip_folder<P: AsRef<Path>>(folder_path: P, zip_path: P) -> io::Result<()> {
+    let folder_path = folder_path.as_ref();
+    let zip_path = zip_path.as_ref();
+
+    let zip_file = File::create(zip_path)?;
+    let mut zip = ZipWriter::new(zip_file);
+
+    let options =
+        zip::write::FileOptions::default().compression_method(CompressionMethod::Deflated);
+
+    for entry in WalkDir::new(folder_path) {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() {
+            let mut file = File::open(path)?;
+            let relative_path = path
+                .strip_prefix(folder_path)
+                .map_err(|e| io::Error::new(ErrorKind::Other, e))?;
+            zip.start_file(relative_path.to_string_lossy(), options)?;
+            io::copy(&mut file, &mut zip)?;
+        }
+    }
+
+    zip.finish()?;
+
+    Ok(())
+}
+
 impl ToOsu for Package {
     fn to_osu(&self, path: &Path) -> io::Result<()> {
         let temp_dir: TempDir = tempdir()?;
@@ -198,7 +230,8 @@ impl ToOsu for Package {
             }
         }
 
-        // TODO: Package all files to a bundle.
+        // Package all files to a bundle.
+        zip_folder(temp_dir.as_ref(), &path)?;
 
         Ok(())
     }
