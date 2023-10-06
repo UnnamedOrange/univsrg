@@ -1,4 +1,12 @@
-use super::super::traits::ToUnivsrg;
-use super::types::OszPath;
+use std::io;
 
-impl ToUnivsrg for OszPath {}
+use super::{
+    super::{traits::AppendToUnivsrg, types::Package},
+    types::OszPath,
+};
+
+impl AppendToUnivsrg for OszPath {
+    fn append_to_univsrg(&self, package: &mut Package) -> io::Result<()> {
+        Ok(())
+    }
+}
