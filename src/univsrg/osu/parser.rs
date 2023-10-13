@@ -1,5 +1,5 @@
 use std::{
-    fs::{create_dir_all, File},
+    fs::{create_dir_all, read_dir, File},
     io,
     path::Path,
 };
@@ -40,6 +40,9 @@ impl AppendToUnivsrg for OszPath {
         }
 
         // TODO: Enumerate osu files and parse.
+        for entry in read_dir(&source_dir)? {
+            let path = entry?.path();
+        }
 
         Ok(())
     }
