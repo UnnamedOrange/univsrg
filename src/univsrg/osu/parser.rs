@@ -1,9 +1,10 @@
 use std::{
     fs::{create_dir_all, read_dir, File},
-    io,
+    io::{self, Read},
     path::Path,
 };
 
+use osu_file_parser::OsuFile;
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
 
@@ -11,6 +12,17 @@ use super::{
     super::{traits::AppendToUnivsrg, types::Package},
     types::OszPath,
 };
+
+fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
+    let mut file = File::open(&path)?;
+    let mut osu_file_string = String::new();
+    file.read_to_string(&mut osu_file_string)?;
+    let osu_file = osu_file_string.parse::<OsuFile>().unwrap();
+
+    // TODO: Parse osu file.
+
+    Ok(())
+}
 
 impl AppendToUnivsrg for OszPath {
     fn append_to_univsrg(&self, package: &mut Package) -> io::Result<()> {
@@ -39,9 +51,13 @@ impl AppendToUnivsrg for OszPath {
             }
         }
 
-        // TODO: Enumerate osu files and parse.
+        // Enumerate osu files and parse.
         for entry in read_dir(&source_dir)? {
             let path = entry?.path();
+            if !path.ends_with(".osu") {
+                continue;
+            }
+            let _ = parse_osu_file(&path, package);
         }
 
         Ok(())
