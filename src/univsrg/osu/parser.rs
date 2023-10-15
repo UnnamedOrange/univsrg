@@ -9,7 +9,10 @@ use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
 
 use super::{
-    super::{traits::AppendToUnivsrg, types::Package},
+    super::{
+        traits::AppendToUnivsrg,
+        types::{Beatmap, Package},
+    },
     types::OszPath,
 };
 
@@ -20,6 +23,8 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
     let osu_file = osu_file_string.parse::<OsuFile>().unwrap();
 
     // TODO: Parse osu file.
+    let resource_pool = &mut package.resource_pool;
+    let mut beatmap = Beatmap::new();
 
     Ok(())
 }
