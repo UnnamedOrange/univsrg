@@ -9,12 +9,18 @@ pub struct LatinAndUnicodeString {
 }
 
 impl LatinAndUnicodeString {
+    pub fn new() -> Self {
+        Self {
+            latin: None,
+            unicode: None,
+        }
+    }
+
     pub fn latin_or_unicode(&self) -> Option<&String> {
         // Note: 使用 Option 的 as_ref 方法将 &Option<T> 转换为 Option<&T>。
         // Note: &self 的 self.latin 就已经是引用了。
         self.latin.as_ref().or(self.unicode.as_ref())
     }
-
     pub fn unicode_or_latin(&self) -> Option<&String> {
         self.unicode.as_ref().or(self.latin.as_ref())
     }
@@ -51,8 +57,8 @@ pub struct Beatmap {
     pub artist: LatinAndUnicodeString,
     pub version: Option<String>,
     pub creator: Option<String>,
-    pub column_count: u32,
-    pub audio: ResourceEntry,
+    pub column_count: Option<u32>,
+    pub audio: Option<ResourceEntry>,
     pub audio_lead_in: Option<u32>,
     pub preview_time: Option<u32>,
     pub background: Option<ResourceEntry>,
@@ -70,6 +76,24 @@ pub struct Package {
 }
 
 impl Beatmap {
+    pub fn new() -> Self {
+        Self {
+            title: LatinAndUnicodeString::new(),
+            artist: LatinAndUnicodeString::new(),
+            version: None,
+            creator: None,
+            column_count: None,
+            audio: None,
+            audio_lead_in: None,
+            preview_time: None,
+            background: None,
+            hp_difficulty: None,
+            acc_difficulty: None,
+            bpm_time_points: vec![],
+            effect_time_points: vec![],
+            objects: vec![],
+        }
+    }
     pub fn make_basename(&self) -> String {
         let mut names = Vec::<&str>::new();
         self.creator.as_ref().map(|it| {

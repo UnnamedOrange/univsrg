@@ -1,7 +1,6 @@
 use std::{
     fs::File,
-    io::ErrorKind,
-    io::{self, Write},
+    io::{self, Error, ErrorKind, Write},
     path::{Path, PathBuf},
 };
 
@@ -29,6 +28,20 @@ use super::super::{
 };
 
 fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io::Result<()> {
+    // Refuse to compile if column count or audio is None.
+    if beatmap.column_count.is_none() {
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            "[beatmap.column_count] is None",
+        ));
+    }
+    if beatmap.audio.is_none() {
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            "[beatmap.audio] is None",
+        ));
+    }
+
     let basename = PathBuf::from(beatmap.make_basename());
     let filename: PathBuf = [root, &basename].iter().collect();
 
@@ -69,7 +82,9 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
 
     let mut difficulty = Difficulty::new();
     // Column count is circle size.
-    difficulty.circle_size = Some(CircleSize::from(Decimal::from(beatmap.column_count as i32)));
+    difficulty.circle_size = Some(CircleSize::from(Decimal::from(
+        beatmap.column_count.unwrap() as i32,
+    )));
     difficulty.hp_drain_rate = beatmap
         .hp_difficulty
         .as_ref()
@@ -83,7 +98,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     let mut general = General::new();
     general.mode = Some(Mode::Mania);
     general.audio_filename = resource
-        .get_path_from_entry(&beatmap.audio)
+        .get_path_from_entry(beatmap.audio.as_ref().unwrap())
         .map(|v| AudioFilename::from(v.clone()));
     general.audio_lead_in = beatmap.audio_lead_in.map(|v| AudioLeadIn::from(v as i32));
     general.preview_time = beatmap.preview_time.map(|v| PreviewTime::from(v as i32));
@@ -140,8 +155,10 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
             // Note: 要将 enum 的类型单独匹配为一个对象，只能写成 new type。
             Note { column, offset } => {
                 ho = HitObject::hitcircle_default();
-                ho.position.x =
-                    Decimal::from(column_to_position(*column, beatmap.column_count) as i32);
+                ho.position.x = Decimal::from(column_to_position(
+                    *column,
+                    beatmap.column_count.unwrap(),
+                ) as i32);
                 ho.time = Decimal::from(*offset as i32);
             }
             LongNote {
@@ -150,8 +167,10 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
                 end_offset,
             } => {
                 ho = HitObject::osu_mania_hold_default();
-                ho.position.x =
-                    Decimal::from(column_to_position(*column, beatmap.column_count) as i32);
+                ho.position.x = Decimal::from(column_to_position(
+                    *column,
+                    beatmap.column_count.unwrap(),
+                ) as i32);
                 ho.time = Decimal::from(*offset as i32);
                 ho.obj_params = OsuManiaHold {
                     end_time: Decimal::from(*end_offset),
