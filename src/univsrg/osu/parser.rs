@@ -4,7 +4,7 @@ use std::{
     path::Path,
 };
 
-use osu_file_parser::OsuFile;
+use osu_file_parser::{OsuFile, Version, VersionedToString};
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
 
@@ -25,6 +25,14 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
     // TODO: Parse osu file.
     let resource_pool = &mut package.resource_pool;
     let mut beatmap = Beatmap::new();
+    const VERSION: Version = 14;
+
+    osu_file
+        .metadata
+        .as_ref()
+        .and_then(|v| v.title.as_ref())
+        .and_then(|v| v.to_string(VERSION))
+        .map(|v| beatmap.title.latin = Some(v));
 
     Ok(())
 }
