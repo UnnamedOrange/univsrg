@@ -4,7 +4,7 @@ use std::{
     path::Path,
 };
 
-use osu_file_parser::{OsuFile, Version, VersionedToString};
+use osu_file_parser::{OsuFile, VersionedToString};
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
 
@@ -21,18 +21,31 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
     let mut osu_file_string = String::new();
     file.read_to_string(&mut osu_file_string)?;
     let osu_file = osu_file_string.parse::<OsuFile>().unwrap();
+    let osu_file_version: u8 = osu_file.version;
 
     // TODO: Parse osu file.
     let resource_pool = &mut package.resource_pool;
     let mut beatmap = Beatmap::new();
-    const VERSION: Version = 14;
 
-    osu_file
-        .metadata
-        .as_ref()
-        .and_then(|v| v.title.as_ref())
-        .and_then(|v| v.to_string(VERSION))
-        .map(|v| beatmap.title.latin = Some(v));
+    let metadata = osu_file.metadata.as_ref();
+    metadata.map(|m| {
+        m.title
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .map(|v| beatmap.title.latin = Some(v));
+        m.title
+            .as_ref()
+            .and_then(|v| v.to_string((osu_file_version)))
+            .map(|v| beatmap.title.unicode = Some(v));
+        m.artist
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .map(|v| beatmap.artist.latin = Some(v));
+        m.artist
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .map(|v| beatmap.artist.unicode = Some(v));
+    });
 
     Ok(())
 }
