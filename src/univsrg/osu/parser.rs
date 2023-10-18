@@ -45,6 +45,14 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
             .as_ref()
             .and_then(|v| v.to_string(osu_file_version))
             .map(|v| beatmap.artist.unicode = Some(v));
+        m.creator
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .map(|v| beatmap.creator = Some(v));
+        m.version
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .map(|v| beatmap.version = Some(v));
     });
 
     Ok(())
