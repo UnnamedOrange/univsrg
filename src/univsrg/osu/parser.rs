@@ -55,6 +55,25 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
             .map(|v| beatmap.version = Some(v));
     });
 
+    let difficulty = osu_file.difficulty.as_ref();
+    difficulty.map(|d| {
+        d.circle_size
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .and_then(|v| v.parse::<u32>().ok())
+            .map(|v| beatmap.column_count = Some(v));
+        d.hp_drain_rate
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .and_then(|v| v.parse::<f32>().ok())
+            .map(|v| beatmap.hp_difficulty = Some(v));
+        d.overall_difficulty
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .and_then(|v| v.parse::<f32>().ok())
+            .map(|v| beatmap.acc_difficulty = Some(v));
+    });
+
     Ok(())
 }
 
