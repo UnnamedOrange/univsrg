@@ -29,49 +29,46 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
 
     let metadata = osu_file.metadata.as_ref();
     metadata.map(|m| {
-        m.title
+        beatmap.title.latin = m.title.as_ref().and_then(|v| v.to_string(osu_file_version));
+        beatmap.title.unicode = m
+            .title_unicode
             .as_ref()
-            .and_then(|v| v.to_string(osu_file_version))
-            .map(|v| beatmap.title.latin = Some(v));
-        m.title
+            .and_then(|v| v.to_string((osu_file_version)));
+        beatmap.artist.latin = m
+            .artist
             .as_ref()
-            .and_then(|v| v.to_string((osu_file_version)))
-            .map(|v| beatmap.title.unicode = Some(v));
-        m.artist
+            .and_then(|v| v.to_string(osu_file_version));
+        beatmap.artist.unicode = m
+            .artist_unicode
             .as_ref()
-            .and_then(|v| v.to_string(osu_file_version))
-            .map(|v| beatmap.artist.latin = Some(v));
-        m.artist
+            .and_then(|v| v.to_string(osu_file_version));
+        beatmap.creator = m
+            .creator
             .as_ref()
-            .and_then(|v| v.to_string(osu_file_version))
-            .map(|v| beatmap.artist.unicode = Some(v));
-        m.creator
+            .and_then(|v| v.to_string(osu_file_version));
+        beatmap.version = m
+            .version
             .as_ref()
-            .and_then(|v| v.to_string(osu_file_version))
-            .map(|v| beatmap.creator = Some(v));
-        m.version
-            .as_ref()
-            .and_then(|v| v.to_string(osu_file_version))
-            .map(|v| beatmap.version = Some(v));
+            .and_then(|v| v.to_string(osu_file_version));
     });
 
     let difficulty = osu_file.difficulty.as_ref();
     difficulty.map(|d| {
-        d.circle_size
+        beatmap.column_count = d
+            .circle_size
             .as_ref()
             .and_then(|v| v.to_string(osu_file_version))
-            .and_then(|v| v.parse::<u32>().ok())
-            .map(|v| beatmap.column_count = Some(v));
-        d.hp_drain_rate
+            .and_then(|v| v.parse::<u32>().ok());
+        beatmap.hp_difficulty = d
+            .hp_drain_rate
             .as_ref()
             .and_then(|v| v.to_string(osu_file_version))
-            .and_then(|v| v.parse::<f32>().ok())
-            .map(|v| beatmap.hp_difficulty = Some(v));
-        d.overall_difficulty
+            .and_then(|v| v.parse::<f32>().ok());
+        beatmap.acc_difficulty = d
+            .overall_difficulty
             .as_ref()
             .and_then(|v| v.to_string(osu_file_version))
-            .and_then(|v| v.parse::<f32>().ok())
-            .map(|v| beatmap.acc_difficulty = Some(v));
+            .and_then(|v| v.parse::<f32>().ok());
     });
 
     Ok(())

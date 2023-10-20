@@ -186,13 +186,11 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         .background
         .as_ref()
         .and_then(|b| resource.get_path_from_entry(b))
-        .and_then(|v| {
-            Some(Background {
-                start_time: 0,
-                file_name: FilePath::from(v),
-                position: None,
-                commands: vec![],
-            })
+        .map(|v| Background {
+            start_time: 0,
+            file_name: FilePath::from(v),
+            position: None,
+            commands: vec![],
         })
         .map(|v| {
             events.push(Event::Background(v));
