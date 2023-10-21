@@ -1,7 +1,7 @@
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
-    io::{self, Write},
+    io::{self, Read, Write},
     ops::Deref,
     path::{Path, PathBuf},
     rc::Rc,
@@ -23,6 +23,13 @@ impl ResourceEntry {
                 bytes,
             }),
         }
+    }
+
+    fn new_from_file_in_bundle(bundle_base: &Path, original_path: PathBuf) -> io::Result<Self> {
+        let mut file = File::open([bundle_base, &original_path].iter().collect::<PathBuf>())?;
+        let mut bytes = vec![];
+        file.read_to_end(&mut bytes)?;
+        Ok(Self::new(original_path, bytes))
     }
 }
 
