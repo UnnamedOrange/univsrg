@@ -71,6 +71,20 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
             .and_then(|v| v.parse::<f32>().ok());
     });
 
+    let general = osu_file.general.as_ref();
+    general.map(|g| {
+        beatmap.preview_time = g
+            .preview_time
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .and_then(|v| v.parse().ok());
+        beatmap.audio_lead_in = g
+            .audio_lead_in
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .and_then(|v| v.parse().ok());
+    });
+
     Ok(())
 }
 
