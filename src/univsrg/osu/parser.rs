@@ -1,9 +1,10 @@
 use std::{
     fs::{create_dir_all, read_dir, File},
     io::{self, Read},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
+use super::super::resource::ResourceEntry;
 use osu_file_parser::{OsuFile, VersionedToString};
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
@@ -16,8 +17,12 @@ use super::{
     types::OszPath,
 };
 
-fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
-    let mut file = File::open(&path)?;
+fn parse_osu_file(
+    osu_file_path: &Path,
+    bundle_base: &Path,
+    package: &mut Package,
+) -> io::Result<()> {
+    let mut file = File::open(&osu_file_path)?;
     let mut osu_file_string = String::new();
     file.read_to_string(&mut osu_file_string)?;
     let osu_file = osu_file_string.parse::<OsuFile>().unwrap();
@@ -83,6 +88,13 @@ fn parse_osu_file(path: &Path, package: &mut Package) -> io::Result<()> {
             .as_ref()
             .and_then(|v| v.to_string(osu_file_version))
             .and_then(|v| v.parse().ok());
+        beatmap.audio = g
+            .audio_filename
+            .as_ref()
+            .and_then(|v| v.to_string(osu_file_version))
+            .and_then(|v| {
+                ResourceEntry::new_from_file_in_bundle(bundle_base, PathBuf::from(v)).ok()
+            });
     });
 
     Ok(())
@@ -121,7 +133,7 @@ impl AppendToUnivsrg for OszPath {
             if !path.ends_with(".osu") {
                 continue;
             }
-            let _ = parse_osu_file(&path, package);
+            let _ = parse_osu_file(&path, source_dir.path(), package);
         }
 
         Ok(())

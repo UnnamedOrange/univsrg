@@ -25,7 +25,7 @@ impl ResourceEntry {
         }
     }
 
-    fn new_from_file_in_bundle(bundle_base: &Path, original_path: PathBuf) -> io::Result<Self> {
+    pub fn new_from_file_in_bundle(bundle_base: &Path, original_path: PathBuf) -> io::Result<Self> {
         let mut file = File::open([bundle_base, &original_path].iter().collect::<PathBuf>())?;
         let mut bytes = vec![];
         file.read_to_end(&mut bytes)?;
