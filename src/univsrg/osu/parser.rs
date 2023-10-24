@@ -4,13 +4,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use super::super::resource::ResourceEntry;
 use osu_file_parser::{OsuFile, VersionedToString};
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
 
 use super::{
     super::{
+        resource::ResourceEntry,
         traits::AppendToUnivsrg,
         types::{Beatmap, Package},
     },
@@ -38,7 +38,7 @@ fn parse_osu_file(
         beatmap.title.unicode = m
             .title_unicode
             .as_ref()
-            .and_then(|v| v.to_string((osu_file_version)));
+            .and_then(|v| v.to_string(osu_file_version));
         beatmap.artist.latin = m
             .artist
             .as_ref()
