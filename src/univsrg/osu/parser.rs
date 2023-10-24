@@ -5,6 +5,7 @@ use std::{
 };
 
 use osu_file_parser::{OsuFile, VersionedToString};
+use rust_decimal::prelude::ToPrimitive;
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
 
@@ -12,7 +13,7 @@ use super::{
     super::{
         resource::ResourceEntry,
         traits::AppendToUnivsrg,
-        types::{Beatmap, Package},
+        types::{Beatmap, BpmTimePoint, EffectTimePoint, Package},
     },
     types::OszPath,
 };
@@ -95,6 +96,27 @@ fn parse_osu_file(
             .and_then(|v| {
                 ResourceEntry::new_from_file_in_bundle(bundle_base, PathBuf::from(v)).ok()
             });
+    });
+
+    let timing_points = osu_file.timing_points.as_ref();
+    timing_points.map(|t| &t.0).map(|t| {
+        let mut btps = Vec::<BpmTimePoint>::new();
+        let mut etps = Vec::<EffectTimePoint>::new();
+        for tp in t {
+            if tp.uninherited() {
+                let offset = tp.time().to_string().parse::<u32>().ok();
+                let bpm = tp.calc_bpm().and_then(|v| v.to_f32());
+                let beats_per_bar = tp.meter() as u32;
+                if let (Some(offset), Some(bpm)) = (offset, bpm) {
+                    btps.push(BpmTimePoint {
+                        offset,
+                        bpm,
+                        beats_per_bar,
+                    });
+                }
+            } else {
+            }
+        }
     });
 
     Ok(())
