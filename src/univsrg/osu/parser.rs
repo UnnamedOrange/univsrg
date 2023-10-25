@@ -103,8 +103,8 @@ fn parse_osu_file(
         let mut btps = Vec::<BpmTimePoint>::new();
         let mut etps = Vec::<EffectTimePoint>::new();
         for tp in t {
+            let offset = tp.time().to_string().parse::<u32>().ok();
             if tp.uninherited() {
-                let offset = tp.time().to_string().parse::<u32>().ok();
                 let bpm = tp.calc_bpm().and_then(|v| v.to_f32());
                 let beats_per_bar = tp.meter() as u32;
                 if let (Some(offset), Some(bpm)) = (offset, bpm) {
@@ -115,8 +115,19 @@ fn parse_osu_file(
                     });
                 }
             } else {
+                let velocity_multiplier = tp
+                    .calc_slider_velocity_multiplier()
+                    .and_then(|v| v.to_f32());
+                if let (Some(offset), Some(velocity_multiplier)) = (offset, velocity_multiplier) {
+                    etps.push(EffectTimePoint {
+                        offset,
+                        velocity_multiplier,
+                    })
+                };
             }
         }
+        beatmap.bpm_time_points = btps;
+        beatmap.effect_time_points = etps;
     });
 
     Ok(())
