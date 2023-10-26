@@ -1,10 +1,10 @@
 use std::{
     fs::{create_dir_all, read_dir, File},
-    io::{self, Read},
+    io::{self, ErrorKind, Read},
     path::{Path, PathBuf},
 };
 
-use osu_file_parser::{OsuFile, VersionedToString};
+use osu_file_parser::{hitobjects::HitObjectParams, OsuFile, VersionedToString};
 use rust_decimal::prelude::ToPrimitive;
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
@@ -13,7 +13,7 @@ use super::{
     super::{
         resource::ResourceEntry,
         traits::AppendToUnivsrg,
-        types::{Beatmap, BpmTimePoint, EffectTimePoint, Package},
+        types::{Beatmap, BpmTimePoint, EffectTimePoint, Object, Package},
     },
     types::OszPath,
 };
@@ -76,6 +76,10 @@ fn parse_osu_file(
             .and_then(|v| v.to_string(osu_file_version))
             .and_then(|v| v.parse::<f32>().ok());
     });
+    beatmap.column_count.ok_or(io::Error::new(
+        ErrorKind::Other,
+        "Column count is necessary.",
+    ))?;
 
     let general = osu_file.general.as_ref();
     general.map(|g| {
@@ -128,6 +132,36 @@ fn parse_osu_file(
         }
         beatmap.bpm_time_points = btps;
         beatmap.effect_time_points = etps;
+    });
+
+    let hit_objects = osu_file.hitobjects.as_ref();
+    hit_objects.map(|h| &h.0).map(|h| {
+        let mut objects = Vec::<Object>::new();
+        // https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29#holds-(osu!mania-only)
+        fn position_to_column(x: u32, column_count: u32) -> u32 {
+            x * column_count / 512
+        }
+        for ho in h {
+            let x = ho.position.x.to_string().parse::<u32>().ok();
+            let column = x.map(|v| position_to_column(v, beatmap.column_count.unwrap()));
+            let offset = ho.time.to_string().parse::<u32>().ok();
+            if let (Some(column), Some(offset)) = (column, offset) {
+                match &ho.obj_params {
+                    HitObjectParams::HitCircle => objects.push(Object::Note { column, offset }),
+                    HitObjectParams::OsuManiaHold { end_time } => {
+                        end_time.to_string().parse::<i32>().ok().map(|v| {
+                            objects.push(Object::LongNote {
+                                column,
+                                offset,
+                                end_offset: v,
+                            })
+                        });
+                    }
+                    _ => {}
+                }
+            }
+        }
+        beatmap.objects = objects;
     });
 
     Ok(())
