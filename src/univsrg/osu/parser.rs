@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use osu_file_parser::{hitobjects::HitObjectParams, OsuFile, VersionedToString};
+use osu_file_parser::{events::Event, hitobjects::HitObjectParams, OsuFile, VersionedToString};
 use rust_decimal::prelude::ToPrimitive;
 use tempfile::{tempdir, TempDir};
 use zip::ZipArchive;
@@ -99,6 +99,10 @@ fn parse_osu_file(
             .and_then(|v| v.to_string(osu_file_version))
             .and_then(|v| {
                 ResourceEntry::new_from_file_in_bundle(bundle_base, PathBuf::from(v)).ok()
+            })
+            .map(|v| {
+                resource_pool.insert(v.clone());
+                v
             });
     });
 
@@ -162,6 +166,21 @@ fn parse_osu_file(
             }
         }
         beatmap.objects = objects;
+    });
+
+    let events = osu_file.events.as_ref();
+    events.map(|e| &e.0).map(|e| {
+        for event in e {
+            if let Event::Background(bg) = event {
+                ResourceEntry::new_from_file_in_bundle(bundle_base, bg.file_name.get().to_owned())
+                    .ok()
+                    .map(|v| {
+                        resource_pool.insert(v.clone());
+                        beatmap.background = Some(v);
+                    });
+                break;
+            }
+        }
     });
 
     Ok(())
