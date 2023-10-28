@@ -29,7 +29,6 @@ fn parse_osu_file(
     let osu_file = osu_file_string.parse::<OsuFile>().unwrap();
     let osu_file_version: u8 = osu_file.version;
 
-    // TODO: Parse osu file.
     let resource_pool = &mut package.resource_pool;
     let mut beatmap = Beatmap::new();
 
@@ -183,6 +182,8 @@ fn parse_osu_file(
         }
     });
 
+    package.beatmaps.push(beatmap);
+
     Ok(())
 }
 
@@ -190,7 +191,7 @@ impl AppendToUnivsrg for OszPath {
     fn append_to_univsrg(&self, package: &mut Package) -> io::Result<()> {
         // Unzip osz file.
         let source_dir: TempDir = tempdir()?;
-        let zip_file = File::open(&self.osz_path)?;
+        let zip_file = File::open(&self.0)?;
         let mut zip = ZipArchive::new(zip_file)?;
 
         // https://blog.csdn.net/m0_47202518/article/details/120421870

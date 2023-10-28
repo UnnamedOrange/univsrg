@@ -1,3 +1,3 @@
-mod compiler;
-mod parser;
-mod types;
+pub mod compiler;
+pub mod parser;
+pub mod types;
