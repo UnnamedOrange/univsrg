@@ -42,8 +42,9 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         ));
     }
 
-    let basename = PathBuf::from(beatmap.make_basename());
-    let filename: PathBuf = [root, &basename].iter().collect();
+    let basename = beatmap.make_basename();
+    let filename = PathBuf::from(basename + ".osu");
+    let out_file_path: PathBuf = [root, &filename].iter().collect();
 
     let mut osu_file = OsuFile::new(14);
 
@@ -197,7 +198,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         });
     osu_file.events = Some(Events(events));
 
-    File::create(filename)?.write_all(osu_file.to_string().as_bytes())?;
+    File::create(out_file_path)?.write_all(osu_file.to_string().as_bytes())?;
 
     Ok(())
 }
