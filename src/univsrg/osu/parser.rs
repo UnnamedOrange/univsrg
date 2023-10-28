@@ -217,7 +217,11 @@ impl AppendToUnivsrg for OszPath {
         // Enumerate osu files and parse.
         for entry in read_dir(&source_dir)? {
             let path = entry?.path();
-            if !path.ends_with(".osu") {
+            if !path
+                .extension()
+                .and_then(|v| v.to_str())
+                .is_some_and(|v| v == "osu")
+            {
                 continue;
             }
             let _ = parse_osu_file(&path, source_dir.path(), package);
