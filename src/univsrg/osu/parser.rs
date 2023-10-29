@@ -171,12 +171,23 @@ fn parse_osu_file(
     events.map(|e| &e.0).map(|e| {
         for event in e {
             if let Event::Background(bg) = event {
-                ResourceEntry::new_from_file_in_bundle(bundle_base, bg.file_name.get().to_owned())
-                    .ok()
-                    .map(|v| {
-                        resource_pool.insert(v.clone());
-                        beatmap.background = Some(v);
-                    });
+                let bg_file_name = bg
+                    .file_name
+                    .get()
+                    .to_str()
+                    .map(|v| v.trim_matches('"').to_owned());
+                if bg_file_name.is_none() {
+                    continue;
+                }
+                ResourceEntry::new_from_file_in_bundle(
+                    bundle_base,
+                    PathBuf::from(bg_file_name.unwrap()),
+                )
+                .ok()
+                .map(|v| {
+                    resource_pool.insert(v.clone());
+                    beatmap.background = Some(v);
+                });
                 break;
             }
         }
