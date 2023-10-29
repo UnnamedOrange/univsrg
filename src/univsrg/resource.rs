@@ -108,7 +108,7 @@ impl ResourceOut {
 
             // Save the path.
             self.entry_to_path
-                .insert(entry.clone(), inflated_path.clone());
+                .insert(entry.clone(), original_path.clone());
 
             // Inflate the path.
 
