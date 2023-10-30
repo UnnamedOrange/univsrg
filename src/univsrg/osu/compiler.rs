@@ -110,8 +110,11 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     let mut timing_points = Vec::<TimingPoint>::new();
     let mut idx_red = 0;
     let mut idx_green = 0;
-    while idx_red < beatmap.bpm_time_points.len() && idx_green < beatmap.effect_time_points.len() {
-        if beatmap.effect_time_points[idx_green].offset < beatmap.bpm_time_points[idx_red].offset {
+    while idx_red < beatmap.bpm_time_points.len() || idx_green < beatmap.effect_time_points.len() {
+        if idx_green < beatmap.effect_time_points.len()
+            && beatmap.effect_time_points[idx_green].offset
+                < beatmap.bpm_time_points[idx_red].offset
+        {
             let etp = &beatmap.effect_time_points[idx_green];
             let tp = TimingPoint::new_inherited(
                 etp.offset as i32, // u32 bug?
