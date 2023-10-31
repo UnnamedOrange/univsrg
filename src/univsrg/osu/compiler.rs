@@ -8,10 +8,10 @@ use osu_file_parser::{
     difficulty::{CircleSize, Difficulty, HPDrainRate, OverallDifficulty},
     events::{Background, Event},
     general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
-    hitobjects::{HitObject, HitObjectParams::OsuManiaHold},
+    hitobjects::{HitObject, HitObjectParams::OsuManiaHold, HitSample},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
     timingpoints::{Effects, SampleIndex, SampleSet, TimingPoint, Volume},
-    Decimal, Events, FilePath, HitObjects, OsuFile, TimingPoints,
+    Decimal, Events, FilePath, HitObjects, OsuFile, TimingPoints, VersionedDefault,
 };
 use tempfile::{tempdir, TempDir};
 use walkdir::WalkDir;
@@ -178,7 +178,9 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
                 ho.time = Decimal::from(*offset as i32);
                 ho.obj_params = OsuManiaHold {
                     end_time: Decimal::from(*end_offset),
-                }
+                };
+                // For holds, a default hit sample must be given.
+                ho.hitsample = HitSample::default(14);
             }
         }
         hit_objects.push(ho);
