@@ -7,7 +7,7 @@ use std::{
 use osu_file_parser::{
     difficulty::{CircleSize, Difficulty, HPDrainRate, OverallDifficulty},
     events::{Background, Event},
-    general::{AudioFilename, AudioLeadIn, General, Mode, PreviewTime},
+    general::{AudioFilename, AudioLeadIn, Countdown, General, Mode, PreviewTime},
     hitobjects::{HitObject, HitObjectParams::OsuManiaHold, HitSample},
     metadata::{Artist, ArtistUnicode, Creator, Metadata, Title, TitleUnicode, Version},
     timingpoints::{Effects, SampleIndex, SampleSet, TimingPoint, Volume},
@@ -105,6 +105,8 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     general.preview_time = beatmap.preview_time.map(|v| PreviewTime::from(v as i32));
     // audio_hash
     // are not supported.
+    // Count down is not "No Count Down" by default, so we turn it off manually.
+    general.countdown = Some(Countdown::NoCountdown);
     osu_file.general = Some(general);
 
     let mut timing_points = Vec::<TimingPoint>::new();
