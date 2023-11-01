@@ -28,14 +28,14 @@ impl LatinAndUnicodeString {
 
 #[derive(Debug)]
 pub struct BpmTimePoint {
-    pub offset: u32,
+    pub offset: i32,
     pub bpm: f32,
     pub beats_per_bar: u32,
 }
 
 #[derive(Debug)]
 pub struct EffectTimePoint {
-    pub offset: u32,
+    pub offset: i32,
     pub velocity_multiplier: f32,
 }
 
@@ -43,11 +43,11 @@ pub struct EffectTimePoint {
 pub enum Object {
     Note {
         column: u32,
-        offset: u32,
+        offset: i32,
     },
     LongNote {
         column: u32,
-        offset: u32,
+        offset: i32,
         end_offset: i32,
     },
 }
@@ -59,8 +59,8 @@ pub struct Beatmap {
     pub creator: Option<String>,
     pub column_count: Option<u32>,
     pub audio: Option<ResourceEntry>,
-    pub audio_lead_in: Option<u32>,
-    pub preview_time: Option<u32>,
+    pub audio_lead_in: Option<i32>,
+    pub preview_time: Option<i32>,
     pub background: Option<ResourceEntry>,
     pub hp_difficulty: Option<f32>,
     pub acc_difficulty: Option<f32>,

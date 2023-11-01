@@ -110,7 +110,7 @@ fn parse_osu_file(
         let mut btps = Vec::<BpmTimePoint>::new();
         let mut etps = Vec::<EffectTimePoint>::new();
         for tp in t {
-            let offset = tp.time().to_string().parse::<u32>().ok();
+            let offset = tp.time().to_string().parse::<i32>().ok();
             if tp.uninherited() {
                 let bpm = tp.calc_bpm().and_then(|v| v.to_f32());
                 let beats_per_bar = tp.meter() as u32;
@@ -147,7 +147,7 @@ fn parse_osu_file(
         for ho in h {
             let x = ho.position.x.to_string().parse::<u32>().ok();
             let column = x.map(|v| position_to_column(v, beatmap.column_count.unwrap()));
-            let offset = ho.time.to_string().parse::<u32>().ok();
+            let offset = ho.time.to_string().parse::<i32>().ok();
             if let (Some(column), Some(offset)) = (column, offset) {
                 match &ho.obj_params {
                     HitObjectParams::HitCircle => objects.push(Object::Note { column, offset }),

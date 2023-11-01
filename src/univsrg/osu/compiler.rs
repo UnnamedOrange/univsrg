@@ -101,8 +101,8 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
     general.audio_filename = resource
         .get_path_from_entry(beatmap.audio.as_ref().unwrap())
         .map(|v| AudioFilename::from(v.clone()));
-    general.audio_lead_in = beatmap.audio_lead_in.map(|v| AudioLeadIn::from(v as i32));
-    general.preview_time = beatmap.preview_time.map(|v| PreviewTime::from(v as i32));
+    general.audio_lead_in = beatmap.audio_lead_in.map(|v| AudioLeadIn::from(v));
+    general.preview_time = beatmap.preview_time.map(|v| PreviewTime::from(v));
     // audio_hash
     // are not supported.
     // Count down is not "No Count Down" by default, so we turn it off manually.
@@ -119,7 +119,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
         {
             let etp = &beatmap.effect_time_points[idx_green];
             let tp = TimingPoint::new_inherited(
-                etp.offset as i32, // u32 bug?
+                etp.offset,
                 rust_decimal::Decimal::try_from(etp.velocity_multiplier).unwrap(),
                 0, // Ignored by inherited timing points.
                 SampleSet::BeatmapDefault,
@@ -133,7 +133,7 @@ fn compile_beatmap(beatmap: &Beatmap, root: &Path, resource: &ResourceOut) -> io
             let btp = &beatmap.bpm_time_points[idx_red];
             let beat_duration_ms = 60000f32 / btp.bpm;
             let tp = TimingPoint::new_uninherited(
-                btp.offset as i32,
+                btp.offset,
                 Decimal::new_from_str(&format!("{:.3}", beat_duration_ms)),
                 btp.beats_per_bar as i32,
                 SampleSet::BeatmapDefault,
